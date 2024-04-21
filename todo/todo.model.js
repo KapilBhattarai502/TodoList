@@ -12,7 +12,7 @@ const todoSchema =new Schema({
         type:String,
         required:true,
         trim:true,
-        maxLength:55,
+        maxLength:57,
 
     },
     date:{
@@ -23,6 +23,7 @@ const todoSchema =new Schema({
 
     
 });
+//create table 
 export const Todo = mongoose.model('Todo', todoSchema);
 
-//create table 
+
