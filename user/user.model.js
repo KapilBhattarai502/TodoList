@@ -34,5 +34,6 @@ const userSchema=new Schema({
         enum:["male","Female","preferNotToSay"],
         required:false,
      }
+     
 });
 export const User=mongoose.model('User',userSchema);

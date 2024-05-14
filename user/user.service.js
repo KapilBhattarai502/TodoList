@@ -81,11 +81,13 @@ export const validateNewUser =async(req,res,next)=>{
             return res.status(404).send({message:"Invalid Credentials"})
         }
         user.password=undefined;
-        //generate token 
 
-        const token=jwt.sign({email:user.email},"abcdabcdabcdabcd")
+
+        //generate token using encryption method 
+
+        const token=jwt.sign({email:user.email},process.env.ACCESS_TOKEN_SECRET);
         console.log(token);
-        return res.status(200).send({message:"Logged In Successfully"});
+        return res.status(200).send({user,accessToken:token});
     
     
     }

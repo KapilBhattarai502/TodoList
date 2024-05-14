@@ -18,6 +18,12 @@ const todoSchema =new Schema({
     date:{
         type:Date,
         required:true,
+    },
+    userId:{
+        type:mongoose.Schema.Types.ObjectId,
+        required:true,
+        ref:"User",
+
     }
     
 
