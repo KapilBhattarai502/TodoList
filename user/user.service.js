@@ -76,7 +76,7 @@ export const validateNewUser =async(req,res,next)=>{
         }
         //check for password matches or not 
         const passwordMatch = await bcrypt .compare(loginCredentials.password,user.password);
-        console.log(passwordMatch);
+        
         if(!passwordMatch){
             return res.status(404).send({message:"Invalid Credentials"})
         }
