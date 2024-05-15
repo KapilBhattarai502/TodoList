@@ -50,27 +50,54 @@ router.post("/todo/add",async(req,res,next)=>{
     
     
 });
-router.delete("/todo/delete/:id",validateaAccessToken,(req,res)=>{
+router.delete("/todo/delete/:id",validateaAccessToken,async(req,res)=>{
+    console.log(req);
     //extract id from req.params
+
+    const todoId=req.params.id;
+    
     
 
     
 
     // check for mongo id validity 
-
+    const isValidMongoId= checkMongoIdValidity(todoId);
     // if not valid mongo id ,throw error
+    if(!isValidMongoId){
+        return res.status(400).send({message:"Invalid Mongo Id:"});
+    }
+    
+
+
 
     // check if todo exists with that id exists 
+    const todo=await Todo.findOne({_id:todoId})
 
     //if not todo ,throw error
+    if(!todo){
+        return res.status(400).send({message:"Todo doesnot exist."})
+    }
 
     //check if logged in user is owner of that todo 
+    const tokenUserId=req.userDetails._id;
+    const todoOwnerId=todo.userId;
+
+    const isOwnerOfTodo =todoOwnerId.equals(tokenUserId);
+
+
+
+
 
     //if not owner ,throw error 
+    if(!isOwnerOfTodo){
+        return res.status(403).send({message:"You are not owner of this todo."})
+    }
 
     //delete todo 
+    await Todo.deleteOne({_id:todoId})
 
     //send appropriate response 
+    return res.status(200).send({message:"Todo is deleted Successfully"})
 
 })
 

@@ -27,6 +27,8 @@ export const validateaAccessToken=async(req,res,next)=>{
         return res.status(401).send("Unauthorized");
     }
 
+    req.userDetails=user;
+
 
 
     //pass the flow
