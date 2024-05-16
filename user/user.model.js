@@ -31,7 +31,7 @@ const userSchema=new Schema({
     },
     gender:{
         type:String,
-        enum:["male","Female","preferNotToSay"],
+        enum:["male","female","preferNotToSay"],
         required:false,
      }
      

@@ -85,7 +85,9 @@ export const validateNewUser =async(req,res,next)=>{
 
         //generate token using encryption method 
 
-        const token=jwt.sign({email:user.email},process.env.ACCESS_TOKEN_SECRET);
+        const token=jwt.sign({email:user.email},process.env.ACCESS_TOKEN_SECRET,{
+            expiresIn:process.env.ACCESS_TOKEN_EXPIRES_IN,
+        });
         console.log(token);
         return res.status(200).send({user,accessToken:token});
     

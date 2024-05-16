@@ -1,7 +1,8 @@
 import express from "express";
 import { todoValidationSchema } from "./todo.validation.js";
 import { Todo } from "./todo.model.js";
-import { extractAccessTokenFromHeaders } from "../utilis/token.from.headers.js";
+import { extractAccessTokenFromHeaders} from "../utilis/token.from.headers.js";
+import { checkMongoIdValidity } from "../utilis/mongo.id.validity.js";
 import jwt from "jsonwebtoken";
 import { User } from "../user/user.model.js";
 import { validateaAccessToken } from "../middleware/authentication.middleware.js";
@@ -25,7 +26,7 @@ router.post("/todo/add",async(req,res,next)=>{
     
     const token=extractAccessTokenFromHeaders(req.headers.authorization);
 
-    console.log(token);
+    // console.log(token);
     
     //decrypt the token 
     const payload=jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
@@ -51,7 +52,7 @@ router.post("/todo/add",async(req,res,next)=>{
     
 });
 router.delete("/todo/delete/:id",validateaAccessToken,async(req,res)=>{
-    console.log(req);
+    // console.log(req);
     //extract id from req.params
 
     const todoId=req.params.id;
@@ -98,6 +99,41 @@ router.delete("/todo/delete/:id",validateaAccessToken,async(req,res)=>{
 
     //send appropriate response 
     return res.status(200).send({message:"Todo is deleted Successfully"})
+
+})
+
+router.get("/todo/details/:id",validateaAccessToken,async(req,res)=>{
+     //extract id from req.params
+     const todoId=req.params.id;
+     
+
+    // check for valid mongo id 
+    const isValidMongoId=checkMongoIdValidity(todoId);
+
+    //if not valid mongo Id throw error 
+    if(!isValidMongoId){
+        return res.status(404).send({message:"Not a valid Mongo Id"})
+    }
+
+    //if valid show the details 
+    const todoList= await Todo.findOne({_id:todoId});
+    //if not todo throw error 
+    if(!todoList){
+        return res.status(404).send({message:"There is no such todoList"})
+    }
+    //check for todo Ownership 
+    const todoOwnerId=todoList.userId;
+    const loggedInuserId=req.userDetails._id;
+
+    const  isOwnerOfTodo=todoOwnerId.equals(loggedInuserId);
+
+    if(!isOwnerOfTodo){
+        return res.status(403).send({message:"you are not authorised "})
+    }
+    todoList.userId=undefined;
+
+    return res.status(200).send({todoList});
+
 
 })
 
