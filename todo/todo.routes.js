@@ -1,11 +1,12 @@
 import express from "express";
-import { todoValidationSchema } from "./todo.validation.js";
+import { getTodoListValidation, todoValidationSchema } from "./todo.validation.js";
 import { Todo } from "./todo.model.js";
 import { extractAccessTokenFromHeaders} from "../utilis/token.from.headers.js";
 import { checkMongoIdValidity } from "../utilis/mongo.id.validity.js";
 import jwt from "jsonwebtoken";
 import { User } from "../user/user.model.js";
 import { validateaAccessToken } from "../middleware/authentication.middleware.js";
+import { validateReqBody} from "../middleware/validation.middleware.js";
 
 const router =express.Router();
 router.post("/todo/add",async(req,res,next)=>{
@@ -133,6 +134,35 @@ router.get("/todo/details/:id",validateaAccessToken,async(req,res)=>{
     todoList.userId=undefined;
 
     return res.status(200).send({todoList});
+
+
+})
+
+router.post("/todo/list",validateaAccessToken,validateReqBody(getTodoListValidation),async(req,res)=>{
+    //skip ,limit
+    // const {page,limit}=req.body;
+    const skip=(page-1)*limit;
+
+    let usertableId=req.userDetails._id;
+    console.log(usertableId);
+    
+    const todos=await Todo.aggregate([{
+        $match:{userId:usertableId},}
+        ,{
+            $skip:skip,
+        },
+        {
+            $limit:limit,
+        },{
+            $project:{
+                userId:0,
+            }
+                
+            
+        }
+    ]);
+    console.log(todos);
+    return res.status(200).send(todos);
 
 
 })
